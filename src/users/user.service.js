@@ -7,12 +7,32 @@ export class UserService{
         this.configService = ConfigService.getInstance();
         this.userRepository = new UserRepository();
     }
+    async getUsers(query){
+        const page = !query || !query.page || parseInt(query.page) < 1 ? 1 : parseInt(query.page);
+        const users = await this.userRepository.getUsers(page);
+        return users;
+    }
+    async getUser(id){
+        const user =await this.userRepository.findById(id);
+        return user;
+    }
+    async updateUser(id, user){
+        const {password, ...userOtherData} = user
+        const updatedUser = new User(userOtherData);
+        if(password){
+            const salt = this.configService.get('SALT')
+            await updatedUser.hashPassword(password, parseInt(salt));
+        }
+        const result = await this.userRepository.updateUser(id, updatedUser);
+        return result;
+    }
+
     async register(user){
-        const newUser = new User(user);
+        const {password, ...userOtherData} = user;
+        const newUser = new User(userOtherData);
         const salt = this.configService.get('SALT');
-        await newUser.hashPassword(u.password, parseInt(salt));
-        const existedUser = await this.userRepository.find(u.email)
-        console.log(newUser)
+        await newUser.hashPassword(user.password, parseInt(salt));
+        const existedUser = await this.userRepository.find(user.email)
         if(existedUser){
             return null
         }
@@ -23,7 +43,7 @@ export class UserService{
         if(!existedUser){
             return null;
         }
-        const user = new User(existedUser.email, existedUser.first_name, existedUser.password)
+        const user = new User(existedUser)
         return user.comparePassword(password)
     }
     static getInstance(){

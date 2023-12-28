@@ -13,6 +13,7 @@ export class App{
     async init(){
         this.app.use(express.json());
         this.router = Router();
+        this.app.use('/uploads', express.static('uploads'))
         this.app.use('/user', UserController.getInstance().router)
         await this.postgreConfig.connect();
         this.app.listen(this.configService.get('PORT'), ()=>console.log(`Server runs at port ${this.configService.get('PORT')}`))

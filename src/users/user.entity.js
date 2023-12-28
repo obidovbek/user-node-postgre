@@ -1,10 +1,13 @@
 import bcryptjs from 'bcryptjs';
 const {hash, compare} = bcryptjs;
 export class User{
-    constructor(email, name, password){
-        this.email = email;
-        this.name = name;
-        if(password){this._password=password};  
+    constructor(user){
+        this.first_name = user.first_name;
+        this.second_name = user.second_name;
+        this.email = user.email;
+        this.gender = user.gender;
+        this.photo = user.photo;
+        if(user.password){this._password=user.password}
     }
 
     get password() {
@@ -14,6 +17,6 @@ export class User{
         this._password =  await hash(pass, salt);
     }
     async comparePassword(pass){
-        return await compare(this._password, pass);
+        return compare(pass, this._password);
     }
 }

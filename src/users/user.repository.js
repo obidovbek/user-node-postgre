@@ -6,7 +6,23 @@ export class UserRepository{
         return UserModel.findOne({where:{email}})
     }
 
-    create({first_name, second_name, email,password,gender}){
-        return UserModel.create({first_name, second_name, email,password,gender});
+    create({first_name, second_name, email,password,gender, photo}){
+        return UserModel.create({first_name, second_name, email, password, gender, photo});
+    }
+    findById(id){
+        return UserModel.findByPk(id);
+    }
+    async updateUser(id, updatedUser){
+        const user = await UserModel.findByPk(id);
+        if(!user)return null;
+        await user.update({...updatedUser, password: updatedUser.password});
+        return user;
+    }
+    async getUsers(page){
+        const users = await UserModel.findAll({
+            limit: 10,
+            offset: (page-1) * 10
+        })
+        return users;
     }
 }
